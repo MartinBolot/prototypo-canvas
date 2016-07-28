@@ -145,6 +145,7 @@ Object.defineProperties( PrototypoCanvas.prototype, {
 		set: function( bool ) {
 			paper.settings.drawCoords = bool;
 			this.displayGlyph();
+			//this.mergeGlyph( this.currGlyph );
 		}
 	},
 	subset: {
@@ -170,6 +171,16 @@ PrototypoCanvas.prototype.displayChar = function( code ) {
 		this.font.charMap[ code.charCodeAt(0) ] : code
 	);
 };
+
+PrototypoCanvas.prototype.mergeGlyph = function( glyph ) {
+	if (this.combined) {
+		this.combined.remove();
+	}
+
+	this.combined = glyph.combineTo();
+	this.combined.fillColor = 'grey';
+	// console.log(glyph.exportJSON());
+}
 
 // overwrite the appearance of #selected items in paper.js
 paper.PaperScope.prototype.Path.prototype._drawSelected = glyph._drawSelected;
@@ -287,11 +298,11 @@ PrototypoCanvas.prototype.setAlternateFor = function( unicode, glyphName ) {
 PrototypoCanvas.prototype.download =
 	function( cb, name, merged, values, user ) {
 		this.generateOtf(function( data ) {
-			this.font.download( data, name, user, merged );
+			this.font.download( data, name, user, false );
 			if ( cb ) {
 				cb();
 			}
-		}.bind(this), name, false, values);
+		}.bind(this), name, merged, values);
 	};
 
 PrototypoCanvas.prototype.getBlob = function( cb, name, merged, values ) {
